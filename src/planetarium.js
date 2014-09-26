@@ -26,6 +26,8 @@ function Planetarium(div, options) {
 	this.visibleObjectsList = [];
 	this.minFOV = 5;
 	this.maxFOV = 120;
+	this.minWidth = 640;
+	this.minHeight = 480;
 }
 
 Planetarium.prototype.getCanvasPosition = function(azimuth, altitude) {
@@ -35,15 +37,17 @@ Planetarium.prototype.getCanvasPosition = function(azimuth, altitude) {
 }
 
 Planetarium.prototype.setWidth = function(width) {
-	this.width = width;
-	this.halfWidth = width / 2;
+	this.width = width >= this.minWidth ? width : this.minWidth;
+	this.halfWidth = this.width / 2;
 	this.inverseAspectRatio = (this.height && this.width) ? (this.height / this.width) : 1;
+	return this.width;
 }
 
 Planetarium.prototype.setHeight = function(height) {
-	this.height = height;
-	this.halfHeight = height / 2;
+	this.height = height >= this.minHeight ? height : this.minHeight;
+	this.halfHeight = this.height / 2;
 	this.inverseAspectRatio = (this.height && this.width) ? (this.height / this.width) : 1;
+	return this.height;
 }
 
 Planetarium.prototype.setDate = function(date) {
@@ -184,8 +188,8 @@ Planetarium.prototype.move = function(displacementX, displacementY) {
 }
 
 Planetarium.prototype.updateCanvasSize = function(width, height) {
-	this.setWidth(width);
-	this.setHeight(height);
+	width = this.setWidth(width);
+	height = this.setHeight(height);
 	$('#' + this.div).width(width);
 	$('#' + this.div).height(height);
 	this.updateCanvas();
