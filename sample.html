@@ -6,7 +6,15 @@
 	</head>
 	<body>
 		<div id="planetarium"></div>
-		<script type="text/javascript" src="star_catalog.js"></script>
-		<script type="text/javascript" src="planetarium.js"></script>
+		<script type="text/javascript" src="res/star_catalog.js"></script>
+		<script type="text/javascript" src="src/astronomy.js"></script>
+		<script type="text/javascript" src="src/objects.js"></script>
+		<script type="text/javascript" src="src/planetarium.js"></script>
+		<script type="text/javascript">
+			var planetarium = new Planetarium('planetarium');
+			planetarium.loadStars(starCatalog);
+			planetarium.init();
+			planetarium.play();
+		</script>
 	</body>
 </html>
