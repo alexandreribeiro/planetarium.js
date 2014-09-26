@@ -16,11 +16,11 @@ function Planetarium(div, options) {
 	this.windowInterval = null;
 	this.showFloor = true;
 	this.canvas = SVG(div);
-	this.fullScreen = (options && options.hasOwnProperty('fullScreen')) ? options.fullScreen : false;
-	this.setWidth((options && options.hasOwnProperty('width')) ? options.width : 960);
-	this.setHeight((options && options.hasOwnProperty('height')) ? options.height : 720);
-	this.originalWidth = (options && options.hasOwnProperty('width')) ? options.width : 960;
-	this.originalHeight = (options && options.hasOwnProperty('height')) ? options.height : 720;
+	this.fullScreen = (options && options.hasOwnProperty('full-screen')) ? options['full-screen'] : false;
+	this.setWidth((options && options.hasOwnProperty('width')) ? options['width'] : 960);
+	this.setHeight((options && options.hasOwnProperty('height')) ? options['height'] : 720);
+	this.originalWidth = (options && options.hasOwnProperty('width')) ? options['width'] : 960;
+	this.originalHeight = (options && options.hasOwnProperty('height')) ? options['height'] : 720;
 	this.objects = [];
 	this.visibleObjectsList = [];
 }

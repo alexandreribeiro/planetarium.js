@@ -11,7 +11,7 @@
 		<script type="text/javascript" src="src/objects.js"></script>
 		<script type="text/javascript" src="src/planetarium.js"></script>
 		<script type="text/javascript">
-			var planetarium = new Planetarium('planetarium');
+			var planetarium = new Planetarium('planetarium', {'full-screen': true, });
 			planetarium.loadStars(starCatalog);
 			planetarium.init();
 			planetarium.play();
