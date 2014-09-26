@@ -133,6 +133,7 @@ Planetarium.prototype.updateCanvas = function() {
 	this.updateCanvasMetrics();
 	this.canvas.clear();
 	this.plotAltitudeLines();
+	this.plotCardinalPoints();
 	this.plotObjects();
 	this.plotInformation();
 }
@@ -146,6 +147,15 @@ Planetarium.prototype.plotInformation = function() {
 	this.canvas.text(informationText).move(20, 60).font({size: this.uiFontSize}).fill({color: this.uiColor});
 	informationText = 'Current Time: ' + this.date.toString();
 	this.canvas.text(informationText).move(20, 80).font({size: this.uiFontSize}).fill({color: this.uiColor});
+}
+
+
+Planetarium.prototype.plotCardinalPoints = function() {
+	for (azimuth = 0; azimuth < 360; azimuth += 90) {
+		canvasPosition = this.getCanvasPosition(azimuth, 0);
+		this.canvas.text(Astronomy.prototype.azimuthToCardinalPoint(azimuth)).move(canvasPosition[0],
+				canvasPosition[1]).font({size: this.uiFontSize}).fill({color: this.uiColor});
+	}
 }
 
 

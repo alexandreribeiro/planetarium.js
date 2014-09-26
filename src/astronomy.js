@@ -80,3 +80,18 @@ Astronomy.stereographicalProjectionCoordinates = function(objectAzimuth, objectA
 	var y = k * (Math.cos(observerAltitude) * Math.sin(objectAltitude) - Math.sin(observerAltitude) * Math.cos(objectAltitude) * Math.cos(objectAzimuth - objectAzimuth));
 	return [x, y];
 }
+
+Astronomy.prototype.azimuthToCardinalPoint = function(degree) {
+	switch(degree) {
+		case 0:
+			return 'N';
+		case 90:
+			return 'E'
+		case 180:
+			return 'S';
+		case 270:
+			return 'W';
+		default:
+			return '?';
+	}
+}
