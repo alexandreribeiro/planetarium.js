@@ -3,7 +3,7 @@ function Planetarium(div, options) {
 	this.uiFontSize = '14px';
 	this.div = div;
 	this.azimuth = 0;
-	this.altitude = 0;
+	this.altitude = 20;
 	this.observerLatitude = -23;
 	this.observerLongitude = -43;
 	this.observerAltitude = 0;
@@ -11,7 +11,7 @@ function Planetarium(div, options) {
 	this.altitudeFOVLength = 0;
 	this.zeroMagnitudeRadius = 10;
 	this.magnitudeDecayRate = 2;
-	this.fov = 120;
+	this.fov = 90;
 	this.date = new Date();
 	this.windowInterval = null;
 	this.showFloor = true;
@@ -21,8 +21,11 @@ function Planetarium(div, options) {
 	this.setHeight((options && options.hasOwnProperty('height')) ? options['height'] : 720);
 	this.originalWidth = (options && options.hasOwnProperty('width')) ? options['width'] : 960;
 	this.originalHeight = (options && options.hasOwnProperty('height')) ? options['height'] : 720;
+	this.scrollToZoomRatio = 50;
 	this.objects = [];
 	this.visibleObjectsList = [];
+	this.minFOV = 5;
+	this.maxFOV = 120;
 }
 
 Planetarium.prototype.getCanvasPosition = function(azimuth, altitude) {
@@ -72,13 +75,18 @@ Planetarium.prototype.init = function() {
 	$('#' + this.div).mouseup(function() { isDragging = false });
 	$('#' + this.div).mouseleave(function() { isDragging = false });
 	$('#' + this.div).mousemove(function(event) {
-		if(isDragging){
+		if (isDragging) {
 			lastX = currentX;
 			lastY = currentY;
 			currentX = event.pageX;
 			currentY = event.pageY;
 			thisPlanetarium.move(currentX - lastX, currentY - lastY);
 		}
+	});
+
+	$('#' + this.div).bind('mousewheel', function(event) {
+		thisPlanetarium.setFOV(thisPlanetarium.fov 
+				+ parseFloat(event.originalEvent.wheelDelta) / thisPlanetarium.scrollToZoomRatio);
 	});
 
 	$(window).on('resize', function() {
@@ -110,6 +118,10 @@ Planetarium.prototype.plotAltitudeLines = function() {
 				middleCurvePosition[1] + 10).font({size: '8px'}).fill({color: this.uiColor});
 		this.canvas.path(drawLine).fill('none').stroke({ width: 0.1, color: this.uiColor});
 	}
+}
+
+Planetarium.prototype.setFOV = function(fov) {
+	if (fov >= this.minFOV && fov <= this.maxFOV) this.fov = fov;
 }
 
 Planetarium.prototype.updateCanvasMetrics = function() {
