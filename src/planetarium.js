@@ -1,7 +1,7 @@
-function Planetarium(div, options) {
+function Planetarium(id, options) {
 	this.uiColor = '#ddd';
 	this.uiFontSize = '14px';
-	this.div = div;
+	this.id = id;
 	this.azimuth = 0;
 	this.altitude = 20;
 	this.observerLatitude = -23;
@@ -14,8 +14,9 @@ function Planetarium(div, options) {
 	this.fov = 90;
 	this.date = new Date();
 	this.windowInterval = null;
+	this.planetariumMenu = null;
 	this.showFloor = true;
-	this.canvas = SVG(div);
+	this.canvas = SVG(id);
 	this.fullScreen = (options && options.hasOwnProperty('full-screen')) ? options['full-screen'] : false;
 	this.setWidth((options && options.hasOwnProperty('width')) ? options['width'] : 960);
 	this.setHeight((options && options.hasOwnProperty('height')) ? options['height'] : 720);
@@ -28,6 +29,7 @@ function Planetarium(div, options) {
 	this.maxFOV = 120;
 	this.minWidth = 640;
 	this.minHeight = 480;
+	this.div = document.getElementById(this.id);
 }
 
 Planetarium.prototype.getCanvasPosition = function(azimuth, altitude) {
@@ -54,8 +56,38 @@ Planetarium.prototype.setDate = function(date) {
 	this.date = date;
 }
 
+Planetarium.prototype.getObserverLatitude = function() {
+	return this.observerLatitude;
+}
+
+Planetarium.prototype.getObserverLongitude = function() {
+	return this.observerLongitude;
+}
+
+Planetarium.prototype.setObserverLatitude = function(observerLatitude) {
+	observerLatitude = parseFloat(observerLatitude);
+	if (!isNaN(observerLatitude)) {
+		if (observerLatitude > -90 && observerLatitude < 90) {
+			this.observerLatitude = observerLatitude;
+		}
+	}
+}
+
+Planetarium.prototype.setObserverLongitude = function(observerLongitude) {
+	observerLongitude = parseFloat(observerLongitude);
+	if (!isNaN(observerLongitude)) {
+		if (observerLongitude > -180 && observerLongitude < 180) {
+			this.observerLongitude = observerLongitude;
+		}
+	}
+}
+
 Planetarium.prototype.init = function() {
 	thisPlanetarium = this;
+
+	this.planetariumMenu = new PlanetariumMenu(this);
+	this.planetariumMenu.render();
+
 	if (this.fullScreen) {
 		this.enterFullScreen();
 	} else {
@@ -68,17 +100,20 @@ Planetarium.prototype.init = function() {
 	var movementX, movementY, movementFinalX, movementFinalY, currentX, currentY = 0;
 	var movementY = 0;
 
-	$('#' + this.div).css('background', '#222');
-	$('#' + this.div).mousedown(function(mousedownEvent) {
-		mousedownEvent.preventDefault(); 
-		currentX = mousedownEvent.pageX;
-		currentY = mousedownEvent.pageY;
-		isDragging = true;
+	this.div.style.background = '#222';
+
+	$('#' + this.id).mousedown(function(mousedownEvent) {
+		if (mousedownEvent.target.tagName.toLowerCase() != 'input') {
+			mousedownEvent.preventDefault();
+			currentX = mousedownEvent.pageX;
+			currentY = mousedownEvent.pageY;
+			isDragging = true;
+		}
 	});
 
-	$('#' + this.div).mouseup(function() { isDragging = false });
-	$('#' + this.div).mouseleave(function() { isDragging = false });
-	$('#' + this.div).mousemove(function(event) {
+	$('#' + this.id).mouseup(function() { isDragging = false });
+	$('#' + this.id).mouseleave(function() { isDragging = false });
+	$('#' + this.id).mousemove(function(event) {
 		if (isDragging) {
 			lastX = currentX;
 			lastY = currentY;
@@ -88,7 +123,7 @@ Planetarium.prototype.init = function() {
 		}
 	});
 
-	$('#' + this.div).bind('mousewheel', function(event) {
+	$('#' + this.id).bind('mousewheel', function(event) {
 		thisPlanetarium.setFOV(thisPlanetarium.fov 
 				+ parseFloat(event.originalEvent.wheelDelta) / thisPlanetarium.scrollToZoomRatio);
 	});
@@ -161,8 +196,12 @@ Planetarium.prototype.plotInformation = function() {
 	this.canvas.text(informationText).move(20, 40).font({size: this.uiFontSize}).fill({color: this.uiColor});
 	informationText = 'Azimuth: ' + this.azimuth.toFixed(2) + ' degrees';
 	this.canvas.text(informationText).move(20, 60).font({size: this.uiFontSize}).fill({color: this.uiColor});
-	informationText = 'Current Time: ' + this.date.toString();
+	informationText = 'Latitude: ' + this.observerLatitude.toFixed(10) + ' degrees';
 	this.canvas.text(informationText).move(20, 80).font({size: this.uiFontSize}).fill({color: this.uiColor});
+	informationText = 'Longitude: ' + this.observerLongitude.toFixed(10) + ' degrees';
+	this.canvas.text(informationText).move(20, 100).font({size: this.uiFontSize}).fill({color: this.uiColor});
+	informationText = 'Current Time: ' + this.date.toString();
+	this.canvas.text(informationText).move(20, 120).font({size: this.uiFontSize}).fill({color: this.uiColor});
 }
 
 
@@ -190,24 +229,26 @@ Planetarium.prototype.move = function(displacementX, displacementY) {
 Planetarium.prototype.updateCanvasSize = function(width, height) {
 	width = this.setWidth(width);
 	height = this.setHeight(height);
-	$('#' + this.div).width(width);
-	$('#' + this.div).height(height);
+	$('#' + this.id).width(width);
+	$('#' + this.id).height(height);
 	this.updateCanvas();
 }
 
 Planetarium.prototype.enterFullScreen = function() {
-	$('#' + this.div).css('position', 'fixed');
-	$('#' + this.div).css('top', 0);
-	$('#' + this.div).css('left', 0);
-	$('#' + this.div).css('margin', 0);
+	this.fullScreen = true;
+	this.div.style.position = 'fixed';
+	this.div.style.top = 0;
+	this.div.style.left = 0;
+	this.div.style.margin = 0;
 	this.updateCanvasSize(window.innerWidth, window.innerHeight);
 }
 
 Planetarium.prototype.leaveFullScreen = function() {
-	$('#' + this.div).css('position', '');
-	$('#' + this.div).css('top', '');
-	$('#' + this.div).css('left', '');
-	$('#' + this.div).css('margin', '');
+	this.fullScreen = false;
+	this.div.style.position = 'relative';
+	this.div.style.top = null;
+	this.div.style.left = null;
+	this.div.style.margin = null;
 	this.updateCanvasSize(this.originalWidth, this.originalHeight);
 }
 
