@@ -120,7 +120,7 @@ Planetarium.prototype.plotAltitudeLines = function() {
 					+ finalCurvePosition[0] +','+ finalCurvePosition[1];
 		this.canvas.text(i + 'o').move(planetarium.halfWidth,
 				middleCurvePosition[1] + 10).font({size: '8px'}).fill({color: this.uiColor});
-		this.canvas.path(drawLine).fill('none').stroke({ width: 0.1, color: this.uiColor});
+		this.canvas.path(drawLine).fill('none').stroke({ width: 0.5, color: this.uiColor});
 	}
 }
 
