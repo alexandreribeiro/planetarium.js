@@ -4,8 +4,8 @@ function Planetarium(id, options) {
 	this.id = id;
 	this.azimuth = 0;
 	this.altitude = 20;
-	this.observerLatitude = -23;
-	this.observerLongitude = -43;
+	this.observerLatitude = -22.9002212;
+	this.observerLongitude = -43.2663505;
 	this.observerAltitude = 0;
 	this.azimuthFOVLength = 0;
 	this.altitudeFOVLength = 0;
@@ -16,6 +16,7 @@ function Planetarium(id, options) {
 	this.windowInterval = null;
 	this.planetariumMenu = null;
 	this.showFloor = true;
+	this.showAltAzGrid = true;
 	this.canvas = SVG(id);
 	this.fullScreen = (options && options.hasOwnProperty('full-screen')) ? options['full-screen'] : false;
 	this.setWidth((options && options.hasOwnProperty('width')) ? options['width'] : 960);
@@ -50,6 +51,15 @@ Planetarium.prototype.setHeight = function(height) {
 	this.halfHeight = this.height / 2;
 	this.inverseAspectRatio = (this.height && this.width) ? (this.height / this.width) : 1;
 	return this.height;
+}
+
+Planetarium.prototype.setShowAltAzGrid = function(value) {
+	this.showAltAzGrid = value ? true : false;
+	return this.showAltAzGrid;
+}
+
+Planetarium.prototype.getShowAltAzGrid = function() {
+	return this.showAltAzGrid;
 }
 
 Planetarium.prototype.setDate = function(date) {
@@ -145,17 +155,19 @@ Planetarium.prototype.play = function() {
 	}, 100);
 }
 
-Planetarium.prototype.plotAltitudeLines = function() {
-	for (var i = 0; i <= 85; i = i + 10 ) {
-		var zeroCurvePosition = this.getCanvasPosition(this.azimuth - (180 / 2), i);
-		var middleCurvePosition = this.getCanvasPosition(this.azimuth, i);
-		var finalCurvePosition = this.getCanvasPosition(this.azimuth + (180 / 2), i);
-		drawLine = 'M' + zeroCurvePosition[0] + ',' + zeroCurvePosition[1] + 'Q'+ middleCurvePosition[0] + ','
-					+ (zeroCurvePosition[1] - 2 * (zeroCurvePosition[1] - middleCurvePosition[1])) + ','
-					+ finalCurvePosition[0] +','+ finalCurvePosition[1];
-		this.canvas.text(i + 'o').move(planetarium.halfWidth,
-				middleCurvePosition[1] + 10).font({size: '8px'}).fill({color: this.uiColor});
-		this.canvas.path(drawLine).fill('none').stroke({ width: 0.5, color: this.uiColor});
+Planetarium.prototype.plotAltAzGrid = function() {
+	if (this.getShowAltAzGrid()) {
+		for (var i = 0; i <= 85; i = i + 10 ) {
+			var zeroCurvePosition = this.getCanvasPosition(this.azimuth - (180 / 2), i);
+			var middleCurvePosition = this.getCanvasPosition(this.azimuth, i);
+			var finalCurvePosition = this.getCanvasPosition(this.azimuth + (180 / 2), i);
+			drawLine = 'M' + zeroCurvePosition[0] + ',' + zeroCurvePosition[1] + 'Q'+ middleCurvePosition[0] + ','
+						+ (zeroCurvePosition[1] - 2 * (zeroCurvePosition[1] - middleCurvePosition[1])) + ','
+						+ finalCurvePosition[0] +','+ finalCurvePosition[1];
+			this.canvas.text(i + 'o').move(planetarium.halfWidth,
+					middleCurvePosition[1] + 10).font({size: '8px'}).fill({color: this.uiColor});
+			this.canvas.path(drawLine).fill('none').stroke({ width: 0.5, color: this.uiColor});
+		}
 	}
 }
 
@@ -183,7 +195,8 @@ Planetarium.prototype.updateCanvas = function() {
 	this.updateDate();
 	this.updateCanvasMetrics();
 	this.canvas.clear();
-	this.plotAltitudeLines();
+	this.plotAltAzGrid();
+	this.plotFloor();
 	this.plotCardinalPoints();
 	this.plotObjects();
 	this.plotInformation();
@@ -196,9 +209,9 @@ Planetarium.prototype.plotInformation = function() {
 	this.canvas.text(informationText).move(20, 40).font({size: this.uiFontSize}).fill({color: this.uiColor});
 	informationText = 'Azimuth: ' + this.azimuth.toFixed(2) + ' degrees';
 	this.canvas.text(informationText).move(20, 60).font({size: this.uiFontSize}).fill({color: this.uiColor});
-	informationText = 'Latitude: ' + this.observerLatitude.toFixed(10) + ' degrees';
+	informationText = 'Latitude: ' + this.observerLatitude.toFixed(7) + ' degrees';
 	this.canvas.text(informationText).move(20, 80).font({size: this.uiFontSize}).fill({color: this.uiColor});
-	informationText = 'Longitude: ' + this.observerLongitude.toFixed(10) + ' degrees';
+	informationText = 'Longitude: ' + this.observerLongitude.toFixed(7) + ' degrees';
 	this.canvas.text(informationText).move(20, 100).font({size: this.uiFontSize}).fill({color: this.uiColor});
 	informationText = 'Current Time: ' + this.date.toString();
 	this.canvas.text(informationText).move(20, 120).font({size: this.uiFontSize}).fill({color: this.uiColor});
@@ -213,6 +226,12 @@ Planetarium.prototype.plotCardinalPoints = function() {
 	}
 }
 
+Planetarium.prototype.plotFloor = function() {
+	canvasPosition = this.getCanvasPosition(this.azimuth, 0);
+	if (canvasPosition[1] < this.height) {
+		this.canvas.rect(this.width, this.height - canvasPosition[1]).move(0, canvasPosition[1]).fill({color: '#4C2307'});
+	}
+}
 
 Planetarium.prototype.move = function(displacementX, displacementY) {
 	xDisplacement = displacementX * this.fov / this.width;

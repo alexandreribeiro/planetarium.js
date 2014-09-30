@@ -1,11 +1,11 @@
 function PlanetariumMenu(planetarium, options) {
 	this.planetarium = planetarium;
 	this.div = null;
-	this.changeLocationButton = null;
 }
 
 PlanetariumMenu.prototype.render = function() {
 	thisMenu = this;
+	this.createStyles();
 
 	this.div = document.createElement('div');
 	this.div.style.position = 'relative';
@@ -13,20 +13,27 @@ PlanetariumMenu.prototype.render = function() {
 	this.div.style.height = '60px';
 	this.div.style.marginTop = '-60px';
 
-	this.changeLocationButton = document.createElement('button');
-	this.changeLocationButton.style.padding = '0 20px';
-	this.changeLocationButton.style.fontWeight = 'bold';
-	this.changeLocationButton.style.margin = 'auto';
-	this.changeLocationButton.style.marginLeft = '10px';
-	this.changeLocationButton.style.height = '40px';
-	this.changeLocationButton.style.position = 'absolute';
-	this.changeLocationButton.style.top = 0;
-	this.changeLocationButton.style.bottom = 0;
-	this.changeLocationButton.appendChild(document.createTextNode('Change Location'));
-	this.changeLocationButton.onclick = function() {
+	button = document.createElement('button');
+	button.style.margin = '10px 0 0 10px';
+	button.style.position = 'relative';
+	button.style.top = 0;
+	button.style.bottom = 0;
+	button.appendChild(document.createTextNode('Change Location'));
+	button.onclick = function() {
 		thisMenu.openLocationCoordinatesModal();
 	}
-	this.div.appendChild(this.changeLocationButton);
+	this.div.appendChild(button);
+
+	button = document.createElement('button');
+	button.style.margin = '10px 0 0 10px';
+	button.style.position = 'relative';
+	button.style.top = 0;
+	button.style.bottom = 0;
+	button.appendChild(document.createTextNode('Show/Hide Alt/Az Grid'));
+	button.onclick = function() {
+		thisMenu.toogleAltAzGrid();
+	}
+	this.div.appendChild(button);
 
 	this.planetarium.div.appendChild(this.div);
 }
@@ -79,8 +86,6 @@ PlanetariumMenu.prototype.openLocationCoordinatesModal = function() {
 
 	button = document.createElement('button');
 	button.style.padding = '0 20px';
-	button.style.fontWeight = 'bold';
-	button.style.height = '40px';
 	button.appendChild(document.createTextNode('Update'));
 	button.onclick = function() {
 		thisMenu.setPlanetariumAttribute('setObserverLatitude', observerLatitudeInput.value);
@@ -91,10 +96,7 @@ PlanetariumMenu.prototype.openLocationCoordinatesModal = function() {
 	modal.appendChild(button);
 
 	button = document.createElement('button');
-	button.style.padding = '0 20px';
-	button.style.fontWeight = 'bold';
 	button.style.marginLeft = '10px';
-	button.style.height = '40px';
 	button.appendChild(document.createTextNode('Close'));
 	button.onclick = function() {
 		thisMenu.closeLocationCoordinatesModal();
@@ -110,9 +112,20 @@ PlanetariumMenu.prototype.closeLocationCoordinatesModal = function() {
 	if (modal) this.planetarium.div.removeChild(modal);
 }
 
+PlanetariumMenu.prototype.toogleAltAzGrid = function() {
+	this.setPlanetariumAttribute('setShowAltAzGrid', !this.planetarium.getShowAltAzGrid.bind(this.planetarium)());
+}
+
 PlanetariumMenu.prototype.setPlanetariumAttribute = function(attribute, value) {
 	if (attribute in this.planetarium) {
 		_function = this.planetarium[attribute].bind(this.planetarium);
 		_function.call(attribute, value);
 	}
+}
+
+PlanetariumMenu.prototype.createStyles = function() {
+	style = document.createElement('style');
+	style.type = 'text/css';
+	style.innerHTML = 'button { padding: 0 20px; height: 40px; border: 0; cursor: pointer; font-weight: bold; margin: auto; }';
+	document.getElementsByTagName('head')[0].appendChild(style);
 }
