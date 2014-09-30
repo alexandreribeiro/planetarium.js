@@ -138,9 +138,9 @@ Planetarium.prototype.init = function() {
 				+ parseFloat(event.originalEvent.wheelDelta) / thisPlanetarium.scrollToZoomRatio);
 	});
 
-	$(window).on('resize', function() {
+	window.onresize = function() {
 		if (thisPlanetarium.fullScreen) thisPlanetarium.enterFullScreen();
-	});
+	};
 }
 
 Planetarium.prototype.pause = function() {
@@ -248,8 +248,8 @@ Planetarium.prototype.move = function(displacementX, displacementY) {
 Planetarium.prototype.updateCanvasSize = function(width, height) {
 	width = this.setWidth(width);
 	height = this.setHeight(height);
-	$('#' + this.id).width(width);
-	$('#' + this.id).height(height);
+	document.getElementById(this.id).style.width = width;
+	document.getElementById(this.id).style.height = height;
 	this.updateCanvas();
 }
 
